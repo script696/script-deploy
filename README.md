@@ -44,6 +44,9 @@ docker login
 2. Прописываем SSH ключ
 
 **Описание флоу ручного деплоя**
+<br/>
+<br/>
+![Screen Shot](https://github.com/script696/script-deploy/blob/main/assets/manual%20deploy.png)
 1. Собираем образы frontend и backend на локальной машине
 2. Пушим образы в docker hub
 3. Заходим на VPS и в директории /home/scipt696 создаем файл docker-compose.yml
@@ -160,6 +163,9 @@ docker compose up
 
 ### Автоматический деплой (CD)
 **Описание флоу автоматического деплоя**
+<br/>
+<br/>
+![Screen Shot](https://github.com/script696/script-deploy/blob/main/assets/CD.drawio.png)
 1. На локальной машине настраиваем github actions workflows
 2. Настраиваем срабатывание экшена деплоя на релиз
 3. Запускаем экшен на гитхабе
