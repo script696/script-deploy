@@ -1,108 +1,229 @@
 <br/>
 
-  <h1 align="center">Deploy script приложений</h3>
+  <h1 align="center">Deploy script приложений</h1>
 
   <p align="center">
-    Приложение 'Fullstack Разработчик'
+    Описание flow деплоя приложения script
     <br/>
     <br/>
-   
-  </p>
-  
-  <p align="center">
-    Для работы приложения необходимо клонировать бэкенд из репозитория 
-     <a align="center" href="https://github.com/script696/next-team-frontend" target="_blank">API</a>
-    <br/>
-    <br/>
-   
   </p>
 
-# О проекте
+## О проекте
 
-<p >
-    <br/>
-</p>
+Проект состоит из:
+- Дешборда построеного на React  <a align="center" href="https://github.com/script696/script-panel" target="_blank">script-panel</a>
+- Бэкент построеного на Node.js  <a align="center" href="https://github.com/script696/script-api" target="_blank">script-api</a>
 
-![Screen Shot](https://github.com/script696/next-team-frontend/blob/main/src/assets/images/gh.png)
+## Задача
+Собрать три докер контейнера из фронта, бэка и базы
+Доставить контейнеры на вируальную машину
+Запустить контейнеры на вируальной машине
 
-Приложение разработано по тестовому заданию:
+### Ручной деплой
 
-# Full-stack тестовое задание
+**Регистрация на Docker Hub**
 
-**Тестовое задание:**
+1. Регистрируемся на dockerhub
+2. На винде 10 пришлось также установить WSL2
+3. При наличии в проекте файлов с разделителями отличными от CRLF докер падает с ошибкой
 
-Задание рассчитано на 4-8 часов выполнения
 
-**Back End**
+**Подготовка локального окружения**
 
-Сервер на NodeJS должен работать в качестве файлового сервера (выдавать файлы для работы Frontend-части) и принимать/отдавать данные по API (3 эндпоинта):
+1. Устанавливаем на локальную машину Docker с офф сайта
+2. На винде 10 пришлось также установить WSL2
+3. При наличии в проекте файлов с разделителями отличными от CRLF докер падает с ошибкой
+4. Логинимся в docker hub
+```
+docker login
+```
 
-1. POST для добавления нового сообщения
-2. POST для отправки следующего числа и получения среднего между ним и предыдущим в ответ
-3. GET для получения информации обо всех предыдущих числах и расчётах
+**Подготовка виртуальной машины**
+1. Устанавлием на VPS  докер в соотв с офф докой 
+[docker install ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+2. Прописываем SSH ключ
 
-**Front-End**
+**Описание флоу ручного деплоя**
+1. Собираем образы frontend и backend на локальной машине
+2. Пушим образы в docker hub
+3. Заходим на VPS и в директории /home/scipt696 создаем файл docker-compose.yml
+4. Запускаем 
+```
+docker compose up
+```
+5. Докер запулит образы фронта, бэка и базы с docker hub  в соответствии с конфигурацией файла 
+и соберет кластер
 
-Две страницы:
+**Создаем образ фронта**
+1. Создаем Dockerfile в коре проекта script-panel
+```
+FROM node:alpine
 
-1. Доска сообщений с рендером предыдущих на стороне сервера (SSR) и формой добавления нового сообщения.
-2. Средние числа. Ввод числа в простую форму, отправка запроса на сервер, получение среднего числа в ответ, вывод результата над предыдущими. Рендер на стороне клиента (CSR).
+WORKDIR /app
 
-На всех страницах стили - предельно простой легко читаемый минимализм. Без изысков. Адаптив не нужен, но информация должна помещаться на экране по умолчанию.
+COPY package*.json .
 
-**Страница Доска сообщений**
+RUN npm ci --silent
 
-- при входе на страницу сервер формирует и выдаёт HTML-разметку с включением данных уже полученных сообщений (на старте сервера там одно захардкоденное сообщение)
-- каждое сообщение на экране состоит из значений полей text и author
-- кроме прошлых сообщений на странице находится форма размещения нового сообщения c теми же полями и кнопкой "разместить сообщение"
-- при отправке сообщения выполняется обновление страницы после которого новое сообщение должно появиться рядом с предыдующими (первым или последним - в зависимости от порядка сортировки)
-- сервер может хранить сообщения в массиве в памяти и/или (необязательно) в файле
+COPY . .
 
-**Страница Средние числа**
+RUN npm run build
 
-- пользователь вводит число в форму, сам отмечает, если число отрицательное и/или дробное (например галочками)
-- при нажатии кнопки "отправить и получить среднее" выполняется отправка запроса к серверу на второй API-эндпоинт
-- запрос и обработка ответа на клиенте посредством JavaScript без перезагрузок страницы
-- сервер в ответ присылает предыдущее число, последнее принятое от пользователя и среднее между ними
-- клиент выводит их под формой новой строкой (из неё должно быть понятно, где что)
-- данные предыдущих расчётов сдвигаются вниз
-- при входе/обновлении страницы приходящая от сервера HTML-разметка не содержит данных о предыдующих расчётах...
-- сразу после построения DOMa клиент отправляет запрос на третий эндпоинт, по получении ответа на который под формой выводится история предыдущих присланных и вычисленных чисел
+EXPOSE 3000
 
-**Обязательно**
+CMD ["npm", "run", "start"]
+```
+2. Собираем докер image 
+```
+docker build -t script696/script-panel
+```
+_script696 - никнейм в моем профиле на doker hub должен быть обязательно такой_
+3. Пушим имедж в докерхаб 
+```
+docker push script696/script-panel
+```
 
-- сдача работы в виде ссылки на репозиторий на GitHub или аналог, убедительная история коммитов
-- все три страницы содержат ссылки для удобного перехода на две другие (и переход выполняется независимо от адреса локального или на хостинге) и на свой репозиторий проекта
-- сервер не должен падать при запросах на получение отсутствующих файлов или на непредусмотренные API-эндпоинты
+**Создаем образ бэка**
+1. Создаем Dockerfile в коре проекта script-panel
+```
+FROM node
 
-## Использованные технологии
+WORKDIR /app
 
-- React
-- TypeScript
-- SCSS
-- Синтаксис ES6
-- REST API
-- Mодульная архитектура
+COPY package*.json .
 
-## Установка
+RUN npm ci
 
-## 1. Клонируйте репозиторий командой:
+COPY . .
 
-### `git@github.com:script696/next-team-frontend.git`
+EXPOSE 5000
 
-## 2. Установите пакеты командой:
+CMD ["npm", "run", "start:prod"]
+```
+2. Собираем докер image
+```
+docker build -t script696/script-api
+```
 
-### `npm i`
+3. Пушим имедж в докерхаб
+```
+docker push script696/script-api
+```
+**Заходим на VPS**
+1. Переходим в папку /home/script696
+2. Создаем файл docker-compose.yml
+3. Открываем файл и пишем инструкции для сбокрки кластера
+```
+version: '3.9'
 
-## 3. Доступные скрипты:
+services:
+  # MongoDB service
+  mongo_db:
+    container_name: db_container
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo_db:/data/db
+  # Script-api service
+  api:
+    container_name: script_api_container
+    image: script696/api_image:stage
+    ports:
+      - 5000:5000
+    environment:
+      PORT: 5000
+      MONGODB_URI: mongodb://mongo_db:27017
+      DB_NAME: script-api
+      ORIGIN: http://46.19.67.82:3000
+    depends_on:
+      - mongo_db
+  # Admin panel service
+  front:
+    container_name: script_admin_panel
+    image : script696/script_panel:latest
+    ports:
+      - 3000:3000
+    environment:
+      PORT: 3000
+      BROWSER: none
+      REACT_APP_BASE_URL: http://46.19.67.82:5000
+    depends_on:
+      - api
 
-### `npm run dev`
+volumes:
+  mongo_db : {}
+```
+4. Запускаем 
+```
+docker compose up
+```
 
-Запуск приложения в режиме разработки.\
-Откройте [http://localhost:3000](http://localhost:3000) чтобы увидеть результат в браузере.
+### Автоматический деплой (CD)
+**Описание флоу автоматического деплоя**
+1. На локальной машине настраиваем github actions workflows
+2. Настраиваем срабатывание экшена деплоя на релиз
+3. Запускаем экшен на гитхабе
+4. В раннере gh создается docker image приложения и пушится на docker hub
+5. Далее ранер подключается к VPS по SSH, пулит имейджи с docker hub и запускает docker compose
 
-Страница обновится автоматически при внесении изменений.
+**Настраиваем экшен для фронта**
+1. в ./github/workflows создаем release.yml
+```
+name: Deploy project
+on:
+  release:
+    types:
+      - created
 
-## Авторы
+jobs:
+  push_to_docker_hub:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.PROJECT_NAME }}:latest
 
-- **Никита Семенов** - _Web Developer_ - [Никита Семенов](http://niksemenov.ru/) - \*\*
+  deploy_on_vps:
+    needs: push_to_docker_hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          passphrase : ${{ secrets.PASSPHRASE }}
+          script: |
+            cd /home/script696
+            docker compose pull
+            docker compose up -d --force-recreate --build 
+            exit
+```
+2. переменные типа DOCKERHUB_USERNAME берутс из секретов приложения
+добавляем их вручную в settings/Secrets and variables/Actions
+3. для HOST указываем айпишник машины
+4. для USERNAME указываем логин по которым заходим на машину
+5. для SSH_KEY указываем SSH key с локальный машины, ключ должен быть непубличным! вместе с -----BEGIN OPENSSH PRIVATE KEY----------END OPENSSH PRIVATE KEY-----
+6. для SSH_PORT указываем 22э
+7. для PASSPHRASE указываем пароль при входе
+8. для DOCKERHUB_TOKEN указываем токен который созаем в docker hub привязав туда публичный SSH ключ
+9. заходим на машину и создаем docker-compose.yml по аналогии с ручным деплоем
