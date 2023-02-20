@@ -1,4 +1,3 @@
-
 version: '3.9'
 
 services:
@@ -26,14 +25,22 @@ services:
   front:
     container_name: script_admin_panel
     image : script696/script_panel:latest
-    ports:
-      - 80:80
     environment:
-      PORT: 80
+      PORT: 3000
       BROWSER: none
-      REACT_APP_BASE_URL: http://localhost:2000
+      REACT_APP_BASE_URL: http://localhost:5000
     depends_on:
       - api
+  # NGINX service
+  nginx:
+    depends_on:
+      - api
+      - front
+      - mongo_db
+    restart: always
+    image : script696/script_nginx:latest
+    ports:
+      - "80:80"
 
 volumes:
   mongo_db : {}
