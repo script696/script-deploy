@@ -11,7 +11,7 @@ services:
   # Script-api service
   api:
     container_name: script_api_container
-    image: script696/script-api:latest
+    image: script696/script_api:latest
     ports:
       - 5000:5000
     environment:
