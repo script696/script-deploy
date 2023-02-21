@@ -10,7 +10,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: script696/script-panel
-          ref: releases/tag/0.0.1
+          ref: script-panele-release
 #           path: 'releases/tag/0.0.1'
       -
         name: Login to Docker Hub
