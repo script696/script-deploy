@@ -1,1 +1,46 @@
-version: '3.9'services:  # MongoDB service  mongo_db:    container_name: db_container    image: mongo:latest    restart: always    volumes:      - mongo_db:/data/db  # Script-api service  api:    container_name: script_api_container    image: script696/api_image:latest    ports:      - 5000:5000    environment:      PORT: 5000      MONGODB_URI: mongodb://mongo_db:27017      DB_NAME: script-api      ORIGIN: http://46.19.67.82:3000    depends_on:      - mongo_db  # Admin panel service  front:    container_name: script_admin_panel    image : script696/script_panel:latest    ports:      - 80:80    environment:      PORT: 80      BROWSER: none      REACT_APP_BASE_URL: api.1259923-cj57908.tw1.ru    depends_on:      - apivolumes:  mongo_db : {}
+version: '3.9'
+
+services:
+  # MongoDB service
+  mongo_db:
+    container_name: db_container
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo_db:/data/db
+  # Script-api service
+  api:
+    container_name: script_api_container
+    image: script696/script_api:latest
+    ports:
+      - 5000:5000
+    environment:
+      PORT: 5000
+      MONGODB_URI: mongodb://mongo_db:27017
+      DB_NAME: script-db
+      ORIGIN: http://niksemenov.ru
+    volumes:
+      - static:/app/dist/static
+    depends_on:
+      - mongo_db
+  # Admin panel service
+  front:
+    container_name: script_admin_panel
+    image : script696/script_panel:latest
+    depends_on:
+      - api
+  # NGINX service
+  nginx:
+    depends_on:
+      - api
+      - front
+      - mongo_db
+    restart: always
+    image : script696/script_nginx:latest
+    ports:
+      - "80:80"
+
+volumes:
+  mongo_db : {}
+  static :
+    driver: local
