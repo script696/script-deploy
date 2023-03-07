@@ -18,7 +18,9 @@ services:
       PORT: 5000
       MONGODB_URI: mongodb://mongo_db:27017
       DB_NAME: script-db
-      ORIGIN: http://niksemenov.ru
+      ADMIN_PANEL: https://niksemenov.ru
+      TELEGRAM_URL: https://niksemenov.ru/shop
+      BOT_TOKEN: 6043745392:AAE_kFGPjvb8d5szU6zaz70QF9gkTuoctSw
     volumes:
       - static:/app/dist/static
     depends_on:
@@ -29,6 +31,12 @@ services:
     image : script696/script_panel:latest
     depends_on:
       - api
+  # Telegram service
+  telegram:
+    container_name: script_shop
+    image : script696/script_shop:latest
+    depends_on:
+      - api
   # NGINX service
   nginx:
     depends_on:
@@ -37,8 +45,11 @@ services:
       - mongo_db
     restart: always
     image : script696/script_nginx:latest
+    volumes:
+      - /etc/nginx/certs:/etc/nginx/certs
     ports:
       - "80:80"
+      - "443:443"
 
 volumes:
   mongo_db : {}
