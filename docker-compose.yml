@@ -18,9 +18,10 @@ services:
       PORT: 5000
       MONGODB_URI: mongodb://mongo_db:27017
       DB_NAME: script-db
-      ADMIN_PANEL: https://niksemenov.ru
-      TELEGRAM_URL: https://niksemenov.ru/shop
+      ADMIN_PANEL: http://script-panel.ru
+      TELEGRAM_URL: https://niksemenov.ru
       BOT_TOKEN: 6043745392:AAE_kFGPjvb8d5szU6zaz70QF9gkTuoctSw
+      USER_ID: 6401be7c6a607f6f5ad28743
     volumes:
       - static:/app/dist/static
     depends_on:
